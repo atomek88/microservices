@@ -5,34 +5,23 @@ from flask import Flask, jsonify
 from flask_restful import Resource, Api
 from flask_sqlalchemy import SQLAlchemy
 
-app = Flask(__name__)
-api = Api(app)
-
-# set config from config.py
-app_settings = os.getenv('APP_SETTINGS')
-app.config.from_object(app_settings)
 # init db
-db = SQLAlchemy(app)
+db = SQLAlchemy()
 
-# model
-class User(db.Model):
-    __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(128), nullable=False)
-    email = db.Column(db.String(128), nullable=False)
-    active = db.Column(db.Boolean(), default=True, nullable=False)
+def create_app(script_info=None):
+    app = Flask(__name__)
+    # set config from config.py
+    app_settings = os.getenv('APP_SETTINGS')
+    app.config.from_object(app_settings)
+# set up extensions to db
+    db.init_app(app)
+    # register blueprints
+    from project.api.users import users_blueprint
+    app.register_blueprint(users_blueprint)
 
-    def __init__(self, username, email):
-        self.username = username
-        self.email = email
+    # shell context for flask cli to register app,db to shell
+    @app.shell_context_processor
+    def ctx():
+        return {'app': app, 'db': db}
 
-class UsersPing(Resource):
-    def get(self):
-        return {
-            'status':'success',
-            'message': 'pong!'
-            }
-# test proper config
-#print(app.config, file=sys.stderr)
-
-api.add_resource(UsersPing, '/users/ping')
+    return app
