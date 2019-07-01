@@ -16,6 +16,38 @@ def add_user(username, email):
 
 class TestUserService(BaseTestCase):
 # refactor tests if needed - include helper fucntion for asserts and success/fail status codes
+    def test_main_no_users(self):
+        """ensure main route behaves correctly when no users added to db"""
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'All Users', response.data)
+        self.assertIn(b'<p>No users!</p>', response.data)
+
+    def test_main_with_users(self):
+        """ show users when main route if users added """
+        add_user('tom', 'tom@yahoo.com')
+        add_user('jon', 'jon@yahoo.com')
+        with self.client:
+            response = self.client.get('/')
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'All Users', response.data)
+            self.assertNotIn(b'<p>No users!</p>', response.data)
+            self.assertIn(b'tom', response.data)
+            self.assertIn(b'jon', response.data)
+
+    def test_main_add_user(self):
+        """ check add user to db via post request"""
+        with self.client:
+            response = self.client.post(
+                '/',
+                data=dict(username='tom', email='tom@yahoo.com'),
+                follow_redirects=True
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'All Users', response.data) # why check if this included?
+            self.assertNotIn(b'<p>No users!</p>', response.data)
+            self.assertIn(b'tom', response.data)
+
     def test_users(self):
         """ensure ping route behaves correctly"""
         response = self.client.get('/users/ping')
