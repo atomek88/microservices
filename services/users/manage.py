@@ -1,9 +1,19 @@
 # manage.py services/users
 import sys
 import unittest
+import coverage
 from flask.cli import FlaskGroup
 from project import create_app, db
 from project.api.models import User
+
+# add coverage reports - import in requirements.txt
+COV = coverage.coverage(branch=True,
+    include='project/*',
+    omit=['projects/tests/*',
+        'projects/config.py',
+        ]
+    )
+COV.start()
 
 app = create_app()
 cli = FlaskGroup(create_app=create_app)
@@ -31,6 +41,20 @@ def seed_db():
     db.session.add(User(username='tom', email='tom@yahoo.com'))
     db.session.add(User(username='jon', email='jon@yahoo.com'))
     db.session.commit()
-    
+
+@cli.command()
+def cov():
+    """runs unit tests with coverage"""
+    tests = unittest.TestLoader().discover('project/tests')
+    result = unittest.TextTestRunner(verbosity=2).run(tests)
+    if result.wasSuccessful():
+        COV.stop()
+        COV.save()
+        print('Coverage Summary:')
+        COV.report()
+        COV.html_report()
+        COV.erase()
+        return 0
+    sys.exit(result)
 if __name__ == '__main__':
     cli()

@@ -93,6 +93,7 @@ def index():
     users = User.query.all()
     return render_template('index.html', users=users)
 
+
 # routes
 api.add_resource(UsersList, '/users')
 api.add_resource(Users, '/users/<user_id>')

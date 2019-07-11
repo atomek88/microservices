@@ -2,7 +2,7 @@
 import os
 import sys
 from flask import Flask, jsonify
-from flask_restful import Resource, Api
+# from flask_restful import Resource, Api
 from flask_sqlalchemy import SQLAlchemy
 
 # init db
