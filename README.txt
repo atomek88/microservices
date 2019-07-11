@@ -1,6 +1,14 @@
-# microservices App using Flask, Python, TDD, Docker
-# tom_micro
+microservices App
 
+# Microservices with Docker, Flask, React
+[![Build Status](https://travis-ci.org/atomek88/microservices.svg?branch=master)](https://travis-ci.org/atomek88/microservices
+
+USING
+SQLAlchemy (postgresql), Blueprints (routing), coverage, CI (travis CI via github), flake8 (linter for semantics)
+Flask Debug Toolbar (debug toolbar)
+TDD (Flask-Testing)
+
+BUILD HELP
 Deployed on EC2 instance (req)
 Prod and Dev environments set up
 use docker-compose to build container locally or on ec2 (recreate_db, seed_db, test available for exec commands)
