@@ -30,3 +30,9 @@ docker-compose logs -f
 
 # run cli commands from manage.py
 docker-compose -f docker-compose-prod.yml exec users python/3 manage.py CMD
+
+# run unit & integration tests
+docker-compose exec users python3 manage.py {cov, test}
+docker-compose exec users flake8 project (linter)
+npm test - runs react-scripts
+react-scripts test --coverage

@@ -3,16 +3,11 @@
 import json
 import unittest
 
+from project.tests.utils import add_user
 from project.tests.base import BaseTestCase
 from project import db
 from project.api.models import User
 
-# helper fucntion for user testing
-def add_user(username, email):
-    user = User(username=username, email=email)
-    db.session.add(user)
-    db.session.commit()
-    return user
 
 class TestUserService(BaseTestCase):
 # refactor tests if needed - include helper fucntion for asserts and success/fail status codes

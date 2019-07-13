@@ -5,3 +5,4 @@ Dockerfile-prod
 htmlcov
 .aws
 creds
+migrations

@@ -7,11 +7,13 @@ from flask_sqlalchemy import SQLAlchemy
 # add debug toolbar from flask
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_cors import CORS
+from flask_migrate import Migrate
 
 # init db
 db = SQLAlchemy()
 toolbar = DebugToolbarExtension()
 cors = CORS()
+migrate = Migrate()
 
 def create_app(script_info=None):
     app = Flask(__name__)
@@ -23,7 +25,8 @@ def create_app(script_info=None):
     db.init_app(app)
     toolbar.init_app(app)
     cors.init_app(app)
-
+    migrate.init_app(app, db)
+    
     # register blueprints
     from project.api.users import users_blueprint
     app.register_blueprint(users_blueprint)
