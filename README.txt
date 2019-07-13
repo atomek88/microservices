@@ -23,6 +23,8 @@ eval $(docker-machine env appName) #point to aws
 eval $(docker-machine env -u) #point to localhost
 
 docker-compose up -d --build # update containers
+# auto reload see changes on server
+docker-compose logs -f
 
 # add ports on AWS to accept from new instance
 
