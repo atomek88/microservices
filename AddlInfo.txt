@@ -1,0 +1,18 @@
+# additional info of functionality added to project
+
+Cookie based authentication vs Token based authentication:
+
+Stateful, server keeps track of active sessions in database, FE a cookie is created, holds session identifier
+cookie with sessionID is placed in users browser. When log out, both sessions destroyed
+
+JWT=stateless, server doesnt keep record of which users are logged in or tokens issues. Instead
+every request to server includes token set usually in Authorization header in form of Bearer{JWT} or in body
+token usually stored in local storage or session storage or cookie
+Tokens areself contained, no server keeping record. Server only signs login requests and verify validity
+Often 3rd party services like Auth() handle issuing tokens so server only needs to verify tokens
+
+Tokens better with CORS enabled makes it easy to expose APIs to different services and domains. Cookies only store sessionId
+tokens can store any type of data (usually include userId and expiration)
+Cookie authentication is slower, needs a lookup to db
+Token auth just decode token, can also have user's permission level and save additional lookups for what services available to user
+Tokens are signed not encrypted so sensitive data here is no go

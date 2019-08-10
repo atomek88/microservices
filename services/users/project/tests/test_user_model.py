@@ -1,39 +1,58 @@
 import unittest
+
+from sqlalchemy.exc import IntegrityError
+
 from project import db
 from project.api.models import User
 from project.tests.base import BaseTestCase
 from project.tests.utils import add_user
 
-from sqlalchemy.exc import IntegrityError
-
-
 class TestUserModel(BaseTestCase):
+
     def test_add_user(self):
-        user = add_user('testuser', 'test@test.com')
+        user = add_user('testuser', 'test@test.com', 'password')
         self.assertTrue(user.id)
         self.assertEqual(user.username, 'testuser')
         self.assertEqual(user.email, 'test@test.com')
+        self.assertTrue(user.password)
         self.assertTrue(user.active)
 
     def test_add_user_duplicate_username(self):
-        user = add_user('testuser','test@test.com')
-        dup_user = User(username='testuser',email='test@test2.com',)
+        add_user('testuser', 'test@test.com', 'password')
+        dup_user = User(username='testuser', email='test@test2.com', password='password')
         db.session.add(dup_user)
         self.assertRaises(IntegrityError, db.session.commit)
 
     def test_add_user_duplicate_email(self):
-        user = add_user('testuser','test@test.com')
+        add_user('testuser','test@test.com', 'password')
 
         dup_user = User(
             username='testuser1',
             email='test@test.com',
+            password='password',
         )
         db.session.add(dup_user)
         self.assertRaises(IntegrityError, db.session.commit)
 
     def test_to_json(self):
-        user = add_user('justatest','test@test.com')
+        user = add_user('testuser','test@test.com', 'password')
         self.assertTrue(isinstance(user.to_json(), dict))
+
+    def test_passwords_are_random(self):
+        user1 = add_user('testuser', 'test@test.com', 'greaterthaneight')
+        user2 = add_user('testuser2', 'test@test2.com', 'greaterthaneight')
+        self.assertNotEqual(user1.password, user2.password)
+
+    def test_encode_auth_token(self):
+        user = add_user('justatest', 'test@test.com', 'password')
+        auth_token = user.encode_auth_token(user.id)
+        self.assertTrue(isinstance(auth_token, bytes))
+
+    def test_decode_auth_token(self):
+        user = add_user('justatest', 'test@test.com', 'password')
+        auth_token = user.encode_auth_token(user.id)
+        self.assertTrue(isinstance(auth_token, bytes))
+        self.assertEqual(User.decode_auth_token(auth_token), user.id)
 
 if __name__ == '__main__':
     unittest.main()

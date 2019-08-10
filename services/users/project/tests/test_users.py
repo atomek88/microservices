@@ -2,11 +2,12 @@
 
 import json
 import unittest
-
-from project.tests.utils import add_user
-from project.tests.base import BaseTestCase
 from project import db
 from project.api.models import User
+from project.tests.utils import add_user
+from project.tests.base import BaseTestCase
+
+
 
 
 class TestUserService(BaseTestCase):
@@ -20,8 +21,8 @@ class TestUserService(BaseTestCase):
 
     def test_main_with_users(self):
         """ show users when main route if users added """
-        add_user('tom', 'tom@yahoo.com')
-        add_user('jon', 'jon@yahoo.com')
+        add_user('tom', 'tom@yahoo.com', 'password')
+        add_user('jon', 'jon@yahoo.com', 'password')
         with self.client:
             response = self.client.get('/')
             self.assertEqual(response.status_code, 200)
@@ -32,16 +33,36 @@ class TestUserService(BaseTestCase):
 
     def test_main_add_user(self):
         """ check add user to db via post request"""
+        add_user('test', 'test@test.com', 'password')
         with self.client:
             response = self.client.post(
                 '/',
-                data=dict(username='tom', email='tom@yahoo.com'),
+                data={
+                    'username': 'tom',
+                    'email': 'tom@yahoo.com',
+                    'password': 'password',
+                },
                 follow_redirects=True
+                #content_type='application/json',
             )
             self.assertEqual(response.status_code, 200)
             self.assertIn(b'All Users', response.data) # why check if this included?
             self.assertNotIn(b'<p>No users!</p>', response.data)
             self.assertIn(b'tom', response.data)
+
+    def test_add_user_invalid_json_keys_no_password(self):
+        """ ensure error thrown is json obj has no password key"""
+        with self.client:
+            resp = self.client.post('/users',
+                data=json.dumps(dict(
+                    username="tom",
+                    email="tom@test.com")),
+                content_type='application/json',
+                )
+            data = json.loads(resp.data.decode())
+            self.assertEqual(resp.status_code, 400)
+            self.assertIn("Invalid payload", data['message'])
+            self.assertIn('fail', data['status'])
 
     def test_users(self):
         """ensure ping route behaves correctly"""
@@ -53,7 +74,7 @@ class TestUserService(BaseTestCase):
 
     def test_single_user(self):
         """Ensure get single user behaves accordingly"""
-        user = add_user("tom", "tom@yahoo.com")
+        user = add_user("tom", "tom@yahoo.com", "password")
         with self.client:
             response = self.client.get(f'/users/{user.id}')
             data = json.loads(response.data.decode())
@@ -82,8 +103,8 @@ class TestUserService(BaseTestCase):
 
     def test_all_users(self):
         """ensure get all users behaves correctly"""
-        add_user('tom', 'tom@yahoo.com')
-        add_user('jon', 'jon@yahoo.com')
+        add_user('tom', 'tom@yahoo.com', 'password')
+        add_user('jon', 'jon@yahoo.com', 'password1')
         with self.client:
             response = self.client.get('/users')
             data = json.loads(response.data.decode())
@@ -100,7 +121,8 @@ class TestUserService(BaseTestCase):
             '/users',
             data=json.dumps({
                 'username': 'tom',
-                'email': 'tom@yahoo.com'
+                'email': 'tom@yahoo.com',
+                'password': 'password',
             }),
             content_type='application/json',
         )
@@ -111,6 +133,7 @@ class TestUserService(BaseTestCase):
 
     def test_add_user_invalid_json(self):
         """ ensure error thrown in json obj is empty"""
+        add_user('test', 'test@test.com', 'test')
         with self.client:
             response = self.client.post(
                 '/users',
@@ -142,7 +165,8 @@ class TestUserService(BaseTestCase):
                 '/users',
                 data=json.dumps({
                     'username': 'tom',
-                    'email': 'tom@yahoo.com'
+                    'email': 'tom@yahoo.com',
+                    'password': 'password',
                 }),
                 content_type='application/json',
             )
@@ -150,9 +174,10 @@ class TestUserService(BaseTestCase):
                 '/users',
                 data=json.dumps({
                     'username': 'tom',
-                    'email': 'tom@yahoo.com'
-            }),
-            content_type='application/json',
+                    'email': 'tom@yahoo.com',
+                    'password': 'password',
+                    }),
+                content_type='application/json',
             )
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 400)

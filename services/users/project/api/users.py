@@ -1,6 +1,6 @@
 # users/project/api/users.py
 # use blueprints self contained components for encapsulating code and assets
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request, render_template, jsonify
 from flask_restful import Resource, Api
 from sqlalchemy import exc
 from project import db
@@ -38,6 +38,7 @@ class Users(Resource):
 
 # add usersList route handler
 class UsersList(Resource):
+
     def get(self):
         """get all users"""
         response_obj = {
@@ -60,10 +61,11 @@ class UsersList(Resource):
 
         username = post_data.get('username')
         email = post_data.get('email')
+        password = post_data.get('password') # replace
         try:
             user = User.query.filter_by(email=email).first()
             if not user:
-                db.session.add(User(username=username, email=email))
+                db.session.add(User(username=username, email=email, password=password))
                 db.session.commit()
                 response_obj['status'] = 'success'
                 response_obj['message'] = f'{email} was added!'
@@ -71,7 +73,10 @@ class UsersList(Resource):
             else:
                 response_obj['message'] = 'Sorry, that email already exists'
                 return response_obj, 400
-        except exc.IntegrityError:
+        except (exc.IntegrityError):
+            db.session.rollback()
+            return jsonify(response_obj), 400
+        except (exc.IntegrityError, ValueError):
             db.session.rollback()
             return response_obj, 400
 
@@ -88,7 +93,8 @@ def index():
     if request.method == 'POST':
         username = request.form['username']
         email = request.form['email']
-        db.session.add(User(username=username, email=email))
+        password = request.form['password']
+        db.session.add(User(username=username, email=email, password=password))
         db.session.commit()
     users = User.query.all()
     return render_template('index.html', users=users)
