@@ -41,7 +41,7 @@ def seed_db():
     db.session.add(User(
         username='tom', email='tom@yahoo.com', password='password1'))
     db.session.add(User(
-        username='jon', email='jon@yahoo.com', password='password2'))
+        username='jon', email='jon@yahoo.com', password='password1'))
     db.session.commit()
 
 @cli.command()
