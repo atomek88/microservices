@@ -4,9 +4,8 @@ import json
 import unittest
 from project import db
 from project.api.models import User
-from project.tests.utils import add_user
+from project.tests.utils import add_user, add_admin
 from project.tests.base import BaseTestCase
-
 
 
 
@@ -51,17 +50,37 @@ class TestUserService(BaseTestCase):
             self.assertIn(b'tom', response.data)
 
     def test_add_user_invalid_json_keys_no_password(self):
-        """ ensure error thrown is json obj has no password key"""
+        """
+        Ensure error is thrown if the JSON object
+        does not have a password key.
+        """
+        add_user('test', 'test@test.com', 'test')
+        # update user
+        user = User.query.filter_by(email='test@test.com').first()
+        user.admin = True
+        db.session.commit()
         with self.client:
-            resp = self.client.post('/users',
-                data=json.dumps(dict(
-                    username="tom",
-                    email="tom@test.com")),
+            resp_login = self.client.post(
+                '/auth/login',
+                data=json.dumps({
+                    'email': 'test@test.com',
+                    'password': 'test'
+                }),
+                content_type='application/json'
+            )
+            token = json.loads(resp_login.data.decode())['auth_token']
+            response = self.client.post(
+                '/users',
+                data=json.dumps({
+                    'username': 'tom',
+                    'email': 'tom@yahoo.com'
+                }),
                 content_type='application/json',
-                )
-            data = json.loads(resp.data.decode())
-            self.assertEqual(resp.status_code, 400)
-            self.assertIn("Invalid payload", data['message'])
+                headers={'Authorization': f'Bearer {token}'}
+            )
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 400)
+            self.assertIn('Invalid payload.', data['message'])
             self.assertIn('fail', data['status'])
 
     def test_users(self):
@@ -111,56 +130,122 @@ class TestUserService(BaseTestCase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(data['data']['users']), 2)
             self.assertIn('tom', data['data']['users'][0]['username'])
+            self.assertTrue(data['data']['users'][0]['active'])
+            self.assertFalse(data['data']['users'][0]['admin'])
             self.assertIn('jon@yahoo.com', data['data']['users'][1]['email'])
+            self.assertTrue(data['data']['users'][0]['active'])
+            self.assertFalse(data['data']['users'][0]['admin'])
             self.assertIn('success', data['status'])
 
     def test_add_user(self):
         """ test if a user can be added to db """
-        with self.client:
-            response = self.client.post(
+        add_user('test', 'test@test.com', 'test')
+        user = User.query.filter_by(email='test@test.com').first()
+        user.admin = True
+        db.session.commit()
+        resp_login = self.client.post(
+            '/auth/login',
+            data=json.dumps({
+                'email': 'test@test.com',
+                'password': 'test'
+                }),
+            content_type='application/json'
+            )
+        token = json.loads(resp_login.data.decode())['auth_token']
+        response = self.client.post(
             '/users',
             data=json.dumps({
                 'username': 'tom',
                 'email': 'tom@yahoo.com',
-                'password': 'password',
+                'password': 'password'
             }),
             content_type='application/json',
+            headers={'Authorization': f'Bearer {token}'}
         )
-            data = json.loads(response.data.decode())
-            self.assertEqual(response.status_code, 201)
-            self.assertIn('tom@yahoo.com was added!', data['message'])
-            self.assertIn('success', data['status'])
+        data = json.loads(response.data.decode())
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('tom@yahoo.com was added!', data['message'])
+        self.assertIn('success', data['status'])
+
 
     def test_add_user_invalid_json(self):
-        """ ensure error thrown in json obj is empty"""
+        """Ensure error is thrown if the JSON object is empty."""
         add_user('test', 'test@test.com', 'test')
+        # update user
+        user = User.query.filter_by(email='test@test.com').first()
+        user.admin = True
+        db.session.commit()
         with self.client:
+            resp_login = self.client.post(
+                '/auth/login',
+                data=json.dumps({
+                    'email': 'test@test.com',
+                    'password': 'test'
+                }),
+                content_type='application/json'
+            )
+            token = json.loads(resp_login.data.decode())['auth_token']
             response = self.client.post(
                 '/users',
                 data=json.dumps({}),
                 content_type='application/json',
-        )
-            data = json.loads(response.data.decode())
-            self.assertEqual(response.status_code, 400)
-            self.assertIn('Invalid payload', data['message'])
-            self.assertIn('fail', data['status'])
-# make sure all messages match returned for test
-    def test_add_user_invalid_json_keys(self):
-        """ ensure error thrown if wrong keys in json"""
-        with self.client:
-            response = self.client.post(
-                '/users',
-                data=json.dumps({'email': 'tom@yahoo.com'}),
-                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}
             )
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 400)
-            self.assertIn('Invalid payload', data['message'])
+            self.assertIn('Invalid payload.', data['message'])
+            self.assertIn('fail', data['status'])
+# make sure all messages match returned for test
+    def test_add_user_invalid_json_keys(self):
+        """
+        Ensure error is thrown if the JSON object does not have a username key.
+        """
+        add_user('test', 'test@test.com', 'test')
+        # update user
+        user = User.query.filter_by(email='test@test.com').first()
+        user.admin = True
+        db.session.commit()
+        with self.client:
+            resp_login = self.client.post(
+                '/auth/login',
+                data=json.dumps({
+                    'email': 'test@test.com',
+                    'password': 'test'
+                }),
+                content_type='application/json'
+            )
+            token = json.loads(resp_login.data.decode())['auth_token']
+            response = self.client.post(
+                '/users',
+                data=json.dumps({
+                    'email': 'tom@yahoo.com',
+                    'password': 'password',
+                }),
+                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}
+                )
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 400)
+            self.assertIn('Invalid payload.', data['message'])
             self.assertIn('fail', data['status'])
 
     def test_add_user_duplicate_email(self):
         """ensure error thrown if email already exists"""
+        add_user('test', 'test@test.com', 'test')
+        #response = auth_user_restful()
+        user = User.query.filter_by(email='test@test.com').first()
+        user.admin = True
+        db.session.commit()
         with self.client:
+            resp_login = self.client.post(
+                '/auth/login',
+                data=json.dumps({
+                    'email': 'test@test.com',
+                    'password': 'test'
+                }),
+                content_type='application/json'
+            )
+            token = json.loads(resp_login.data.decode())['auth_token']
             self.client.post(
                 '/users',
                 data=json.dumps({
@@ -169,20 +254,83 @@ class TestUserService(BaseTestCase):
                     'password': 'password',
                 }),
                 content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}
             )
+            token_two = json.loads(resp_login.data.decode())['auth_token']
             response = self.client.post(
                 '/users',
                 data=json.dumps({
                     'username': 'tom',
                     'email': 'tom@yahoo.com',
                     'password': 'password',
-                    }),
+                }),
                 content_type='application/json',
+                headers={'Authorization': f'Bearer {token_two}'}
             )
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 400)
-            self.assertIn("Sorry, that email already exists", data['message'])
-            self.assertIn("fail", data['status'])
+            self.assertIn(
+                'Sorry, that email already exists', data['message'])
+            self.assertIn('fail', data['status'])
+
+    def test_add_user_inactive(self):
+        add_user('test', 'test@test.com', 'test')
+        user = User.query.filter_by(email='test@test.com').first()
+        user.active = False
+        db.session.commit()
+        with self.client:
+            resp_login = self.client.post(
+                '/auth/login',
+                data=json.dumps({
+                    'email': 'test@test.com',
+                    'password': 'test'
+                }),
+                content_type='application/json'
+            )
+            token = json.loads(resp_login.data.decode())['auth_token']
+            response = self.client.post(
+                '/users',
+                data=json.dumps({
+                    'username': 'tom',
+                    'email': 'tom@yahoo.com',
+                    'password': 'password'
+                }),
+                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}
+            )
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['status'] == 'fail')
+            self.assertTrue(data['message'] == 'Provide a valid auth token.')
+            self.assertEqual(response.status_code, 401)
+
+    def test_add_user_not_admin(self):
+        #add_admin('test', 'test@test.com', 'test')
+        add_user('test', 'test@test.com', 'test')
+        with self.client:
+            resp_login = self.client.post(
+                '/auth/login',
+                data=json.dumps({
+                    'email': 'test@test.com',
+                    'password': 'test',
+                }),
+                content_type='application/json'
+            )
+            token = json.loads(resp_login.data.decode())['auth_token']
+            resp = self.client.post(
+                '/users',
+                data=json.dumps({
+                    'username': 'tom',
+                    'email': 'tom@yahoo.com',
+                    'password': 'password'
+                }),
+                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}
+            )
+            data=json.loads(resp.data.decode())
+            self.assertTrue(data['status'] == 'fail')
+            self.assertTrue(data['message'] == 'You do not have permission to do that.')
+            self.assertEqual(resp.status_code, 401)
+
 
 if __name__ == '__main__':
     unittest.main()

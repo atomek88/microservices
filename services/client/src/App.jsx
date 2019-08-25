@@ -123,11 +123,6 @@ class App extends Component {
                     </div>
                   )} />
                   <Route exact path='/about' component={About}/>
-                  <Route exact path='/status' render{() => (
-                    <UserStatus
-                      isAuthenticated={this.state.isAuthenticated}
-                    />
-                  )} />
                   <Route exact path='/register' render={() => (
                     <Form
                       formType={'Register'}
@@ -149,6 +144,11 @@ class App extends Component {
                   <Route exact path='/logout' render={() => (
                     <Logout
                       logoutUser={this.logoutUser}
+                      isAuthenticated={this.state.isAuthenticated}
+                    />
+                  )} />
+                  <Route exact path='/status' render={() => (
+                    <UserStatus
                       isAuthenticated={this.state.isAuthenticated}
                     />
                   )} />

@@ -5,6 +5,7 @@ from flask_restful import Resource, Api
 from sqlalchemy import exc
 from project import db
 from project.api.models import User
+from project.api.utils import authenticate_restful, is_admin
 
 users_blueprint = Blueprint('users', __name__, template_folder='./templates')
 api = Api(users_blueprint)
@@ -38,7 +39,7 @@ class Users(Resource):
 
 # add usersList route handler
 class UsersList(Resource):
-
+    method_decorators = {'post': [authenticate_restful]}
     def get(self):
         """get all users"""
         response_obj = {
@@ -49,13 +50,17 @@ class UsersList(Resource):
         }
         return response_obj, 200
 
-    def post(self):
+    def post(self, resp):
         """ post a user """
         post_data = request.get_json()
         response_obj = {
             'status': 'fail',
-            'message': 'Invalid payload'
+            'message': 'Invalid payload.'
         }
+        if not is_admin(resp):
+            response_obj['message'] = \
+                "You do not have permission to do that."
+            return response_obj, 401
         if not post_data:
             return response_obj, 400
 
@@ -75,7 +80,7 @@ class UsersList(Resource):
                 return response_obj, 400
         except (exc.IntegrityError):
             db.session.rollback()
-            return jsonify(response_obj), 400
+            return response_obj, 400
         except (exc.IntegrityError, ValueError):
             db.session.rollback()
             return response_obj, 400
