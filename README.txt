@@ -29,7 +29,7 @@ docker-compose logs -f
 # add ports on AWS to accept from new instance
 
 # run cli commands from manage.py
-docker-compose -f docker-compose-prod.yml exec users python/3 manage.py CMD
+docker-compose -f docker-compose-prod.yml exec users python3 manage.py CMD
 
 # run unit & integration tests
 docker-compose exec users python3 manage.py {cov, test}

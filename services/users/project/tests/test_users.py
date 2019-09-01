@@ -7,7 +7,7 @@ from project.api.models import User
 from project.tests.utils import add_user, add_admin
 from project.tests.base import BaseTestCase
 
-
+# REFACTOR MUCH OF TEST CODE
 
 class TestUserService(BaseTestCase):
 # refactor tests if needed - include helper fucntion for asserts and success/fail status codes
