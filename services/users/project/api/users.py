@@ -10,7 +10,25 @@ from project.api.utils import authenticate_restful, is_admin
 users_blueprint = Blueprint('users', __name__, template_folder='./templates')
 api = Api(users_blueprint)
 
+# route handler for index, get
+@users_blueprint.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        db.session.add(User(username=username, email=email, password=password))
+        db.session.commit()
+    users = User.query.all()
+    return render_template('index.html', users=users)
 
+class UsersPing(Resource):
+    def get(self):
+        return {
+        "status": 'success',
+        'message': 'pong!'
+        }
+# add route to blueprint
 # get user
 class Users(Resource):
     def get(self, user_id):
@@ -85,26 +103,9 @@ class UsersList(Resource):
             db.session.rollback()
             return response_obj, 400
 
-class UsersPing(Resource):
-    def get(self):
-        return {
-        "status": 'success',
-        'message': 'pong!'
-        }
-# add route to blueprint
-# route handler for index, get
-@users_blueprint.route('/', methods=['GET', 'POST'])
-def index():
-    if request.method == 'POST':
-        username = request.form['username']
-        email = request.form['email']
-        password = request.form['password']
-        db.session.add(User(username=username, email=email, password=password))
-        db.session.commit()
-    users = User.query.all()
-    return render_template('index.html', users=users)
 
 # routes
-api.add_resource(UsersList, '/users')
+
 api.add_resource(Users, '/users/<user_id>')
 api.add_resource(UsersPing, '/users/ping')
+api.add_resource(UsersList, '/users')
