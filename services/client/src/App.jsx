@@ -15,6 +15,7 @@ class App extends Component {
      super();
      this.state = {
        users: [],
+       isAuthenticated: false,
        username: '',
        email: '',
        title: 'MicroServices App',
@@ -22,8 +23,7 @@ class App extends Component {
          username: '',
          email: '',
          password: '',
-       },
-       isAuthenticated: false,
+       }
      };
      this.addUser = this.addUser.bind(this);
      this.handleChange = this.handleChange.bind(this);
@@ -31,9 +31,17 @@ class App extends Component {
      this.handleUserFormSubmit = this.handleUserFormSubmit.bind(this);
      this.logoutUser = this.logoutUser.bind(this);
    };
+   // use componentWillMount for things dont produce side effects
+   componentWillMount() {
+     if (window.localStorage.getItem('authToken')){
+       this.setState({ isAuthenticated: true });
+     };
+   };
+   // use componentDidMount for things that product side effects
    componentDidMount() {
      this.getUsers();
    };
+
    getUsers() {
      axios.get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`)
      .then((res) => {this.setState({users: res.data.data.users }); })

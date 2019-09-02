@@ -1,7 +1,7 @@
 # services/users/project/init.py
 import os
-import sys
-from flask import Flask, jsonify
+
+from flask import Flask
 # from flask_restful import Resource, Api
 from flask_sqlalchemy import SQLAlchemy
 # add debug toolbar from flask
