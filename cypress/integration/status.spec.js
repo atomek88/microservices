@@ -22,9 +22,9 @@ describe('Status', () => {
       .get('input[type="submit"]').click()
       .get('.navbar-burger').click();
 
-    cy.wait(500);
+    cy.wait(1500);
 
-  // assert '/status' is displayed properly
+// assert '/status' is displayed properly
     cy.visit('/status');
     cy.get('.navbar-burger').click();
     cy.contains('User Status').click();
@@ -37,7 +37,5 @@ describe('Status', () => {
       .get('a').contains('Log Out')
       .get('a').contains('Register').should('not.be.visible')
       .get('a').contains('Log In').should('not.be.visible');
-
   });
-
 });
