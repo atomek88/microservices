@@ -16,3 +16,9 @@ tokens can store any type of data (usually include userId and expiration)
 Cookie authentication is slower, needs a lookup to db
 Token auth just decode token, can also have user's permission level and save additional lookups for what services available to user
 Tokens are signed not encrypted so sensitive data here is no go
+
+
+TODO:
+refactor e2e tests cypress and unittests
+add validation logic for user,email,password in unit tests (only in e2e) tests [special characters restrictions?]
+refactor utilities into separate file where available

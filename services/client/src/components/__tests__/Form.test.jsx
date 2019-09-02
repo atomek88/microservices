@@ -3,7 +3,7 @@ import { shallow } from 'enzyme';
 import renderer from 'react-test-renderer';
 import { MemoryRouter, Switch, Redirect } from 'react-router-dom';
 
-import Form from '../Form';
+import Form from '../forms/Form';
 
 const testData = [
   {
@@ -45,6 +45,7 @@ describe('When not authenticated', () => {
     it(`${el.formType} Form submits the form properly`, () => {
       const wrapper = shallow(component);
       wrapper.instance().handleUserFormSubmit = jest.fn();
+      wrapper.instance().validateForm = jest.fn();
       wrapper.update();
       const input = wrapper.find('input[type="email"]');
       expect(wrapper.instance().handleUserFormSubmit).toHaveBeenCalledTimes(0);
@@ -53,18 +54,19 @@ describe('When not authenticated', () => {
       wrapper.find('form').simulate('submit', el.formData)
       expect(wrapper.instance().handleUserFormSubmit).toHaveBeenCalledWith(el.formData);
       expect(wrapper.instance().handleUserFormSubmit).toHaveBeenCalledTimes(1);
+      expect(wrapper.instance().validateForm).toHaveBeenCalledTimes(1);
     });
     it(`${el.formType} Form renders a snapshot properly`, () => {
       const component = <Form formType={el.formType} formData={el.formData} />;
       const tree = renderer.create(component).toJSON();
       expect(tree).toMatchSnapshot();
     });
-    /*
+
     it(`${el.formType} Form should be disabled by default`, () => {
       const wrapper = shallow(component);
       const input = wrapper.find('input[type="submit"]');
       expect(input.get(0).props.disabled).toEqual(true);
-    });*/
+    });
   })
 });
 
@@ -80,20 +82,4 @@ describe("When authenticated", () => {
       expect(wrapper.find('Redirect')).toHaveLength(1);
     });
   })
-});
-
-describe('When not authenticated', () => {
-  const testValues = {
-    formType: 'Register',
-    formData: {
-      username: '',
-      email: '',
-      password: ''
-    },
-    handleUserFormSubmit: jest.fn(),
-    handleFormChange: jest.fn(),
-    isAuthenticated: false,
-  };
-  const component = <Form {...testValues} />;
-
 });
