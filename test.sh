@@ -1,5 +1,6 @@
 #!/bin/bash
 
+type=$1
 fails=""
 
 inspect() {
@@ -10,7 +11,6 @@ inspect() {
 
 #run unit and integration tests
 server() {
-  echo 'running server unittests'
   docker-compose up -d --build
   docker-compose exec users python manage.py test
   inspect $? users
@@ -21,7 +21,6 @@ server() {
 
 # run e2e tests
 client() {
-  echo 'running client'
   docker-compose up -d --build
   docker-compose exec client npm test -- --coverage
   # add command {q} to pass into react tests since doesnt quit on its own
@@ -29,7 +28,6 @@ client() {
   docker-compose down
 }
 e2e() {
-  echo 'running e2e'
   docker-compose -f docker-compose-prod.yml up -d --build
   docker-compose -f docker-compose-prod.yml exec users python manage.py recreate_db
   ./node_modules/.bin/cypress run --config baseUrl=http://localhost
@@ -45,7 +43,7 @@ all() {
 $1 $2 $3 $4
 
 # run appropriate tests
-<<COMMENT
+#<<COMMENT
 if [[ "${type}" == "server" ]]; then
   echo "\n"
   echo "Running server-side tests!\n"
@@ -63,7 +61,7 @@ else
   echo "Running all tests!\n"
   all
 fi
-COMMENT
+#COMMENT
 
 
 # return code

@@ -17,6 +17,12 @@ Cookie authentication is slower, needs a lookup to db
 Token auth just decode token, can also have user's permission level and save additional lookups for what services available to user
 Tokens are signed not encrypted so sensitive data here is no go
 
+Swagger:
+swagger.json - contain basic metadata about the API then reflected in localhost/swagger
+nginx set up /location to route to swagger docs
+configuration file can also be written in YAML - swagger.yml; use json to yaml online converter
+docker-compose.yml => define volume and environment (pointing to swagger.json)
+
 
 TODO:
 refactor e2e tests cypress and unittests
