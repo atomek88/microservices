@@ -22,7 +22,19 @@ swagger.json - contain basic metadata about the API then reflected in localhost/
 nginx set up /location to route to swagger docs
 configuration file can also be written in YAML - swagger.yml; use json to yaml online converter
 docker-compose.yml => define volume and environment (pointing to swagger.json)
+*write a script for updating server IP to swagger.json depending on stage/prod env (see update-spec.py)
+CMD :: python services/swagger/update-spec.py http://DOCKER_MACHINE_STAGING_IP
 
+Start/Deploy
+Authenticate create AWS instance:
+docker-machine create --driver amazonec2 --amazonec2-access-key AKI******* --amazonec2-secret-key 8T93C*******  aws-sandbox
+
+
+Running Tests
+(see manage.py commands) ++ docker-compose exec [module] ...
+see test.sh file for more info or run shell command 'sh test.sh +[opt fun]'
+cypress E2E: ./node_modules/.bin/cypress open [--config baseURL=http://localhost (or other)]
+*usually recreate and seed db
 
 TODO:
 refactor e2e tests cypress and unittests
