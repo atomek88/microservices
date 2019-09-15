@@ -1,7 +1,25 @@
 # additional info of functionality added to project
 
-Cookie based authentication vs Token based authentication:
+TODO:
+refactor e2e tests cypress and unittests
+add validation logic for user,email,password in unit tests (only in e2e) tests [special characters restrictions?]
+refactor utilities into separate file where available
+build.sh - build script to set all env variables, run some commands to seed db, change environemtn etc
 
+Swagger:
+swagger.json - contain basic metadata about the API then reflected in localhost/swagger
+nginx set up /location to route to swagger docs
+configuration file can also be written in YAML - swagger.yml; use json to yaml online converter
+docker-compose.yml => define volume and environment (pointing to swagger.json)
+*write a script for updating server IP to swagger.json depending on stage/prod env (see update-spec.py)
+CMD :: python services/swagger/update-spec.py http://DOCKER_MACHINE_STAGING_IP
+
+Start/Deploy
+Authenticate create AWS instance:
+docker-machine create --driver amazonec2 --amazonec2-access-key AKI******* --amazonec2-secret-key 8T93C*******  aws-sandbox
+
+Cookie based authentication vs Token based authentication:
+###########
 Stateful, server keeps track of active sessions in database, FE a cookie is created, holds session identifier
 cookie with sessionID is placed in users browser. When log out, both sessions destroyed
 
@@ -17,26 +35,46 @@ Cookie authentication is slower, needs a lookup to db
 Token auth just decode token, can also have user's permission level and save additional lookups for what services available to user
 Tokens are signed not encrypted so sensitive data here is no go
 
-Swagger:
-swagger.json - contain basic metadata about the API then reflected in localhost/swagger
-nginx set up /location to route to swagger docs
-configuration file can also be written in YAML - swagger.yml; use json to yaml online converter
-docker-compose.yml => define volume and environment (pointing to swagger.json)
-*write a script for updating server IP to swagger.json depending on stage/prod env (see update-spec.py)
-CMD :: python services/swagger/update-spec.py http://DOCKER_MACHINE_STAGING_IP
-
-Start/Deploy
-Authenticate create AWS instance:
-docker-machine create --driver amazonec2 --amazonec2-access-key AKI******* --amazonec2-secret-key 8T93C*******  aws-sandbox
-
-
 Running Tests
 (see manage.py commands) ++ docker-compose exec [module] ...
 see test.sh file for more info or run shell command 'sh test.sh +[opt fun]'
 cypress E2E: ./node_modules/.bin/cypress open [--config baseURL=http://localhost (or other)]
 *usually recreate and seed db
 
-TODO:
-refactor e2e tests cypress and unittests
-add validation logic for user,email,password in unit tests (only in e2e) tests [special characters restrictions?]
-refactor utilities into separate file where available
+Docker/Container/Initialize commands:
+Development:
+export REACT_APP_USERS_SERVICE_URL=http://localhost
+Staging:
+$ export REACT_APP_USERS_SERVICE_URL=http://DOCKER_MACHINE_STAGING_IP
+Production:
+$ export REACT_APP_USERS_SERVICE_URL=http://DOCKER_MACHINE_PROD_IP
+$ export SECRET_KEY=SOMETHING_SUPER_SECRET
+
+Build images = docker-compose up -d build
+Stop containers = docker-comopse stop  // down
+
+Build individual containers (each service in docker-compose_.yml file):
+docker-compose up -d --build [container ex=users-db/client/nginx]
+Test DB:  docker-compose exec users-db psql -U postgres
+Reset docker back to localhost and unset docker env variables:
+eval $(docker-machine env -u)
+
+Seed DB:
+$ docker-compose exec users python manage.py recreate_db
+$ docker-compose exec users python manage.py seed_db
+
+Unit Test:
+docker-compose exec users python manage.py test
+
+React Client Test:
+docker-compose exec client npm test -- --verbose
+
+Lint:
+docker-compose exec users flake8 project
+
+E2E:
+./node_modules/.bin/cypress open --config baseUrl=http://localhost
+
+Update Swagger:
+python services/swagger/update-spec.py http://INSERT_IP_HERE
+docker-compose up -d --build swagger
