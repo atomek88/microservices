@@ -6,6 +6,9 @@ add validation logic for user,email,password in unit tests (only in e2e) tests [
 refactor utilities into separate file where available
 build.sh - build script to set all env variables, run some commands to seed db, change environemtn etc
 
+QUESTIONS:
+-my e2e tests taking long time to run (check why)
+
 Swagger:
 swagger.json - contain basic metadata about the API then reflected in localhost/swagger
 nginx set up /location to route to swagger docs
