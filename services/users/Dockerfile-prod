@@ -3,8 +3,8 @@ FROM python:3.7.2-slim
 
 # install dependencies
 RUN apt-get update && \
-    apt-get add -y install netcat && \
-    apt-get add clean
+    apt-get -y install netcat && \
+    apt-get clean
 
 # set working directory
 WORKDIR /usr/src/app

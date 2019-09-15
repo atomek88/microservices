@@ -1,5 +1,5 @@
 #!/bin/sh
-echo "travis branch check: $TRAVIS_BRANCH"
+echo "*** travis branch check: $TRAVIS_BRANCH"
 
 if [ -z "$TRAVIS_PULL_REQUEST" ] || [ "$TRAVIS_PULL_REQUEST" == "false" ]
 then
@@ -23,7 +23,7 @@ then
     export REPO=$AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com
 
   fi
-
+# 455774238826.dkr.ecr.us-east-1.amazonaws.com
   if [ "$TRAVIS_BRANCH" == "staging" ] || \
    [ "$TRAVIS_BRANCH" == "production" ]
   then
