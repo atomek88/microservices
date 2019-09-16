@@ -1,7 +1,14 @@
 #!/bin/sh
+echo "*** travis branch check: $TRAVIS_BRANCH"
 
 if [ -z "$TRAVIS_PULL_REQUEST" ] || [ "$TRAVIS_PULL_REQUEST" == "false" ]
 then
+
+  if [[ "$TRAVIS_BRANCH" == "staging" ]]; then
+    export DOCKER_ENV=stage
+  elif [[ "$TRAVIS_BRANCH" == "production" ]]; then
+    export DOCKER_ENV=prod
+  fi
 
   if [ "$TRAVIS_BRANCH" == "staging" ] || \
      [ "$TRAVIS_BRANCH" == "production" ]
@@ -11,12 +18,12 @@ then
     ./awscli-bundle/install -b ~/bin/aws
     export PATH=~/bin:$PATH
     # add AWS_ACCOUNT_ID, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY env vars
-    eval $(aws ecr get-login --region us-east-1 --no-include-email)
+    eval $(aws ecr get-login --region us-east-1 --no-include-email | sed 's|https://||')
     export TAG=$TRAVIS_BRANCH
     export REPO=$AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com
 
   fi
-
+# 455774238826.dkr.ecr.us-east-1.amazonaws.com
   if [ "$TRAVIS_BRANCH" == "staging" ] || \
    [ "$TRAVIS_BRANCH" == "production" ]
   then
@@ -24,6 +31,8 @@ then
     docker build $USERS_REPO -t $USERS:$COMMIT -f Dockerfile-prod
     docker tag $USERS:$COMMIT $REPO/$USERS:$TAG
     docker push $REPO/$USERS:$TAG
+    echo "##########"
+    echo "push: $REPO/$USERS:$TAG and users_repo: $USERS_REPO"
     # users db
     docker build $USERS_DB_REPO -t $USERS_DB:$COMMIT -f Dockerfile
     docker tag $USERS_DB:$COMMIT $REPO/$USERS_DB:$TAG

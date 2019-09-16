@@ -5,9 +5,6 @@ FROM python:3.7.2-slim
 RUN apt-get update && \
     apt-get -y install netcat && \
     apt-get clean
-    # apk add postgresql-dev && \
-    #apk add bind-tools && \
-    #apk add netcat-openbsd
 
 # set working directory
 #RUN mkdir -p /usr/src/app
