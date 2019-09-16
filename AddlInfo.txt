@@ -1,10 +1,16 @@
 # additional info of functionality added to project
+# TODOs -> additional tasks to complete
+# QUESTIONS -> questions about project
+# SWAGGER -> info
 
 TODO:
 refactor e2e tests cypress and unittests
 add validation logic for user,email,password in unit tests (only in e2e) tests [special characters restrictions?]
 refactor utilities into separate file where available
 build.sh - build script to set all env variables, run some commands to seed db, change environemtn etc
+
+QUESTIONS:
+-my e2e tests taking long time to run (check why)
 
 Swagger:
 swagger.json - contain basic metadata about the API then reflected in localhost/swagger
