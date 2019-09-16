@@ -1,6 +1,10 @@
 # additional info of functionality added to project
+# TODOs -> additional tasks to complete
+# QUESTIONS -> questions about project
+# SWAGGER -> info
 
 TODO:
+CACHE docker images on ECR - look up
 refactor e2e tests cypress and unittests
 add validation logic for user,email,password in unit tests (only in e2e) tests [special characters restrictions?]
 refactor utilities into separate file where available
@@ -21,6 +25,8 @@ Start/Deploy
 Authenticate create AWS instance:
 docker-machine create --driver amazonec2 --amazonec2-access-key AKI******* --amazonec2-secret-key 8T93C*******  aws-sandbox
 
+AWS settings:
+Need to set DNS name of auto-load balancer in amazonec2 in docker-push.sh REACT_APP_USERS_SERVICE_URL variable!!
 Cookie based authentication vs Token based authentication:
 ###########
 Stateful, server keeps track of active sessions in database, FE a cookie is created, holds session identifier
