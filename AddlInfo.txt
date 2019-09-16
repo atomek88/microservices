@@ -1,4 +1,7 @@
 # additional info of functionality added to project
+# TODOs -> additional tasks to complete
+# QUESTIONS -> questions about project
+# SWAGGER -> info
 
 TODO:
 refactor e2e tests cypress and unittests
