@@ -24,6 +24,7 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
 
+# set url to build images for tests, needs to be updated before building images for push to ECR
 before_script:
   - export REACT_APP_USERS_SERVICE_URL=http://127.0.0.1
   - npm install

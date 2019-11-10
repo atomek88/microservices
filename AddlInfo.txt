@@ -68,7 +68,7 @@ Test DB:  docker-compose exec users-db psql -U postgres
 Reset docker back to localhost and unset docker env variables:
 eval $(docker-machine env -u)
 
-Seed DB:
+SeedDB:
 $ docker-compose exec users python manage.py recreate_db
 $ docker-compose exec users python manage.py seed_db
 

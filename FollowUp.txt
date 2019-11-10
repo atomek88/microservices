@@ -1,0 +1,2 @@
+1.when initially setting up cluster to host services on AWS - cant connect to users/ or users/ping for some reason
+- check this on regular staging environment

@@ -1,4 +1,6 @@
 #!/bin/sh
+
+# update swagger spec file - python services/swagger/update-spec.py http://LOAD_BALANCER_STAGE_DNS_NAME
 echo "*** travis branch check: $TRAVIS_BRANCH"
 
 if [ -z "$TRAVIS_PULL_REQUEST" ] || [ "$TRAVIS_PULL_REQUEST" == "false" ]
@@ -26,7 +28,7 @@ then
   fi
 # 455774238826.dkr.ecr.us-east-1.amazonaws.com
   if [ "$TRAVIS_BRANCH" == "staging" ] || \
-   [ "$TRAVIS_BRANCH" == "production" ]
+     [ "$TRAVIS_BRANCH" == "production" ]
   then
     # users
     docker build $USERS_REPO -t $USERS:$COMMIT -f Dockerfile-$DOCKER_ENV
